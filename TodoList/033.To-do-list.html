@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Todo List</title>
+    <style>
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .todo-list {
+        display: grid;
+        width: 630px;
+        padding-left: 40px;
+        margin-left: 20px;
+        grid-template-columns: 200px 150px 150px 100px;
+        background-color: aqua;
+        column-gap: 10px;
+        row-gap: 10px;
+        border-bottom-left-radius: 5px;
+        border-bottom-right-radius: 5px;
+      }
+
+      .delete-button {
+        background-color: red;
+        border: none;
+        color: white;
+        height: 30px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .input-placeholder {
+        margin-left: 2px;
+        width: 220px;
+        border-radius: 5px;
+        margin-bottom: 5px;
+        cursor: pointer;
+      }
+
+      .add-button {
+        width: 50px;
+        margin-left: 89px;
+        margin-bottom: 5px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .input-time {
+        margin-left: 18px;
+        border-radius: 5px;
+        margin-bottom: 5px;
+        width: 110px;
+        cursor: pointer;
+      }
+
+      .input-date {
+        margin-left: 5px;
+        border-radius: 5px;
+        margin-bottom: 5px;
+        width: 140px;
+        cursor: pointer;
+      }
+
+      .edit-button {
+        cursor: pointer;
+      }
+    </style>
+  </head>
+
+  <body class="grid-input">
+    <div
+      style="
+        background-color: azure;
+        width: 710px;
+        margin-left: 80px;
+        padding-top: 5px;
+        padding-bottom: 20px;
+      "
+    >
+      <h2 style="margin-left: 300px">Todo List</h2>
+      <!--  -->
+      <!--  -->
+      <div
+        style="
+          display: flex;
+          background-color: bisque;
+
+          margin-top: 30px;
+          padding-top: 20px;
+          margin-left: 20px;
+          padding-left: 10px;
+          width: 660px;
+          border-top-right-radius: 5px;
+          border-bottom-left-radius: 5px;
+        "
+      >
+        <!--  -->
+        <!--  -->
+        <input
+          placeholder="           Add task"
+          class="js-name-input input-placeholder"
+        />
+        <input type="date" class="js-duedate-input input-date" />
+        <input type="time" class="js-duetime-input input-time" />
+
+        <!--  -->
+        <!--  -->
+        <button
+          onclick="
+      addToDo();
+    
+    "
+          class="add-button"
+        >
+          Add
+        </button>
+      </div>
+
+      <!--  -->
+      <!--  -->
+      <div class="js-todo-list todo-list"></div>
+    </div>
+    <script>
+      const todoListKey = "";
+      let todoList = JSON.parse(localStorage.getItem(todoListKey)) || [];
+
+      //
+      if (todoList.length === 0) {
+        todoList.push({
+          name: "Default Todo 1",
+          dueDate: "03/10/2024",
+          dueTime: "10:00 AM",
+        });
+        todoList.push({
+          name: "Default Todo 2",
+          dueDate: "03/11/2024",
+          dueTime: "02:30 PM",
+        });
+        todoList.push({
+          name: "Default Todo 3",
+          dueDate: "03/12/2024",
+          dueTime: "08:00 AM",
+        });
+        saveTodoList();
+      }
+
+      renderTodo();
+      //
+
+      renderTodo();
+
+      //
+      //
+      function renderTodo() {
+        let todoListHTML = "";
+        for (let i = 0; i <= todoList.length - 1; i++) {
+          const todo = todoList[i];
+          const { name, dueDate, dueTime } = todo;
+
+          const html = `
+        <div>${i + 1}.${name}</div>
+        <div>Date: ${dueDate}</div>
+        <div>Time: ${dueTime}</div>
+        <div>
+          <button onclick="
+            showEditOptions(${i});
+          " class="edit-button">Edit</button>
+          <button onclick="
+            todoList.splice(${i}, 1);
+            saveTodoList();
+            renderTodo();
+          " class="delete-button">Delete</button>
+        </div>`;
+          todoListHTML += html;
+        }
+        document.querySelector(".js-todo-list").innerHTML = todoListHTML;
+      }
+      //
+      //
+      function addToDo() {
+        const inputElement = document.querySelector(".js-name-input");
+        const name = inputElement.value;
+        const dateinputElement = document.querySelector(".js-duedate-input");
+        const dueDate = dateinputElement.value;
+        const timeinputElement = document.querySelector(".js-duetime-input");
+        const dueTime = timeinputElement.value;
+        console.log({
+          name: name,
+          dueDate: dueDate,
+          dueTime: dueTime,
+        });
+        todoList.push({
+          name,
+          dueDate,
+          dueTime,
+        });
+        console.log(todoList);
+        inputElement.value = "";
+        saveTodoList();
+        renderTodo();
+      }
+      //
+      //
+      function showEditOptions(index) {
+        const editOption = prompt("Enter:     name, date, or time,  to edit:");
+        if (editOption !== null) {
+          if (editOption === "name") {
+            editTodoName(index);
+          } else if (editOption === "date") {
+            editTodoDate(index);
+          } else if (editOption === "time") {
+            editTodoTime(index);
+          } else {
+            alert("Invalid option. Please enter 'name', 'date', or 'time'.");
+          }
+        }
+      }
+      //
+      //
+      function editTodoName(index) {
+        const newName = prompt("Enter new name for the todo item:");
+        if (newName !== null) {
+          todoList[index].name = newName;
+          saveTodoList();
+          renderTodo();
+        }
+      }
+      //
+      //
+      function editTodoDate(index) {
+        const newDate = prompt(
+          "Enter new due date for the todo item (MM/DD/YYYY):"
+        );
+        if (newDate !== null) {
+          todoList[index].dueDate = newDate;
+          saveTodoList();
+          renderTodo();
+        }
+      }
+      //
+      //
+      function editTodoTime(index) {
+        const newTime = prompt(
+          "Enter new due time for the todo item (HH:mm AM/PM):"
+        );
+        if (newTime !== null) {
+          todoList[index].dueTime = newTime;
+          saveTodoList();
+          renderTodo();
+        }
+      }
+
+      //
+      function saveTodoList() {
+        localStorage.setItem(todoListKey, JSON.stringify(todoList));
+      }
+    </script>
+  </body>
+</html>
